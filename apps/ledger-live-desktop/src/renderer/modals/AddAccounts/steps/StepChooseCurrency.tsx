@@ -199,6 +199,8 @@ export const StepChooseCurrencyFooter = ({
   existingAccounts,
   onCloseModal,
   setCurrency,
+  isSandbox: isSandbox,
+  setSandbox,
 }: StepProps) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -251,6 +253,8 @@ export const StepChooseCurrencyFooter = ({
     setCurrency,
     tokenAccount,
     transitionTo,
+    isSandbox,
+    setSandbox,
   ]);
 
   return (
@@ -279,6 +283,17 @@ export const StepChooseCurrencyFooter = ({
           {t("common.continue")}
         </Button>
       )}
+      <Button
+          primary
+          disabled={!currency || fullNodeNotReady || !navigator.onLine}
+          onClick={() => {
+            setSandbox(true)
+            transitionTo("import")
+          }}
+          data-test-id="modal-continue-button"
+        >
+          {t("Continue in Sandbox")}
+        </Button>
     </>
   );
 };

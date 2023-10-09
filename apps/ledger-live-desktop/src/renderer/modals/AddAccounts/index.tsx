@@ -22,6 +22,7 @@ import StepConnectDevice from "./steps/StepConnectDevice";
 import StepImport, { StepImportFooter } from "./steps/StepImport";
 import StepFinish, { StepFinishFooter } from "./steps/StepFinish";
 import { blacklistedTokenIdsSelector } from "~/renderer/reducers/settings";
+import BigNumber from "bignumber.js";
 
 export type Props = {
   // props from redux
@@ -45,7 +46,7 @@ type ScanStatus = "idle" | "scanning" | "error" | "finished";
 export type StepProps = {
   t: TFunction;
   transitionTo: (a: string) => void;
-  currency: CryptoOrTokenCurrency | null;
+  currency: CryptoOrTokenCurrency;
   device: Device | undefined | null;
   scannedAccounts: Account[];
   existingAccounts: Account[];
@@ -65,6 +66,8 @@ export type StepProps = {
   setScannedAccounts: (a: { scannedAccounts?: Account[]; checkedAccountsIds?: string[] }) => void;
   blacklistedTokenIds?: string[];
   flow?: string;
+  isSandbox: boolean;
+  setSandbox: (a: boolean) => void;
 };
 type St = Step<StepId, StepProps>;
 const createSteps = (skipChooseCurrencyStep?: boolean | null): St[] => {
@@ -125,6 +128,7 @@ type State = {
   };
   err: Error | undefined | null;
   reset: number;
+  isSandbox: boolean;
 };
 const mapStateToProps = createStructuredSelector({
   device: getCurrentDevice,
@@ -144,6 +148,7 @@ const INITIAL_STATE: State = {
   err: null,
   scanStatus: "idle",
   reset: 0,
+  isSandbox: false,
 };
 class AddAccounts extends PureComponent<Props, State> {
   state = INITIAL_STATE;
@@ -170,6 +175,12 @@ class AddAccounts extends PureComponent<Props, State> {
     this.setState({
       currency,
     });
+
+    handleSetSandbox= (sandbox: boolean) =>
+    this.setState({
+      isSandbox: sandbox,
+    });
+
 
   handleSetScanStatus = (scanStatus: ScanStatus, err: Error | undefined | null = null) => {
     if (err) {
@@ -240,7 +251,7 @@ class AddAccounts extends PureComponent<Props, State> {
       flow = "add account",
       preventSkippingCurrencySelection,
     } = this.props;
-    const { currency, scannedAccounts, checkedAccountsIds, scanStatus, err, editedNames, reset } =
+    const { currency, scannedAccounts, checkedAccountsIds, scanStatus, err, editedNames, reset, isSandbox } =
       this.state;
     let { stepId } = this.state;
     const stepperProps = {
@@ -261,6 +272,8 @@ class AddAccounts extends PureComponent<Props, State> {
       onGoStep1: this.onGoStep1,
       editedNames,
       flow,
+      isSandbox,
+      setSandbox: this.handleSetSandbox,
     };
     const title = <Trans i18nKey="addAccounts.title" />;
     const errorSteps = err ? [2] : [];
