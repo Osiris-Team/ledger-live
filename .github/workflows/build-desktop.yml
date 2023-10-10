@@ -58,7 +58,7 @@ jobs:
           path: ${{ github.workspace }}/apps/ledger-live-desktop/dist/${{ steps.build-desktop.outputs.name }}-${{ steps.build-desktop.outputs.version }}-win-x64.exe
   
   report:
-    needs: [build-desktop-app-linux, build-desktop-app-macos, build-desktop-app-windows]
+    needs: [build-desktop-app-windows]
     runs-on: ubuntu-latest
     if: always() && !cancelled() && github.event_name == 'workflow_dispatch'
     steps:
