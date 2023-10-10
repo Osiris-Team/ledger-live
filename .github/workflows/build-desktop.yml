@@ -2,12 +2,6 @@ name: "@Desktop • Build App"
 run-name: "@Desktop • Build App triggered by ${{ github.event_name == 'workflow_dispatch' && inputs.login || github.actor }} ${{ format('on ref {0}', github.ref_name) }}"
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-      - release
-      - hotfix
   workflow_dispatch:
     inputs:
       ref:
@@ -29,36 +23,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-desktop-app-linux:
-    name: "Build Ledger Live Desktop (Linux)"
-    runs-on: ubuntu-latest
-    env:
-      NODE_OPTIONS: "--max-old-space-size=7168"
-    steps:
-      - uses: LedgerHQ/ledger-live/tools/actions/composites/checkout-merge@develop
-        with:
-          ref: ${{ (github.event_name == 'workflow_dispatch' && (inputs.ref || github.ref_name)) || github.sha }}
-          base: ${{ inputs.base_ref }}
-      - name: Set git user
-        run: |
-          git config user.email "105061298+live-github-bot[bot]@users.noreply.github.com"
-          git config user.name "live-github-bot[bot]"
-      - name: Setup the toolchain
-        uses: ./tools/actions/composites/setup-toolchain
-      - uses: ./tools/actions/composites/setup-build-desktop
-        id: build-desktop
-        with:
-          os: linux
-          aws-access-key: ${{ secrets.AWS_S3_CACHE_ACCESS_KEY }}
-          aws-secret-key: ${{ secrets.AWS_S3_CACHE_SECRET_KEY }}
-      - name: Build the app
-        run: pnpm build:lld --api="http://127.0.0.1:${{ steps.build-desktop.outputs.port }}" --token="yolo" --team="foo"
-      - name: Upload linux app
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.build-desktop.outputs.version }}-linux-x86_64.AppImage
-          path: ${{ github.workspace }}/apps/ledger-live-desktop/dist/${{ steps.build-desktop.outputs.name }}-${{ steps.build-desktop.outputs.version }}-linux-x86_64.AppImage
-
   build-desktop-app-windows:
     name: "Build Ledger Live Desktop (Windows)"
     runs-on: windows-latest
@@ -92,41 +56,7 @@ jobs:
         with:
           name: ${{ steps.build-desktop.outputs.version }}-win-x64.exe
           path: ${{ github.workspace }}/apps/ledger-live-desktop/dist/${{ steps.build-desktop.outputs.name }}-${{ steps.build-desktop.outputs.version }}-win-x64.exe
-
-  build-desktop-app-macos:
-    name: "Build Ledger Live Desktop (Mac OS X)"
-    runs-on: macos-latest
-    env:
-      NODE_OPTIONS: "--max-old-space-size=7168"
-    steps:
-      - uses: LedgerHQ/ledger-live/tools/actions/composites/checkout-merge@develop
-        with:
-          ref: ${{ (github.event_name == 'workflow_dispatch' && (inputs.ref || github.ref_name)) || github.sha }}
-          base: ${{ inputs.base_ref }}
-          persist-credentials: false
-      - name: Set git user
-        run: |
-          git config user.email "105061298+live-github-bot[bot]@users.noreply.github.com"
-          git config user.name "live-github-bot[bot]"
-      - name: Setup the toolchain
-        uses: ./tools/actions/composites/setup-toolchain
-        with:
-          pnpm_dest: ${{ runner.temp }}/setup-pnpm
-      - uses: ./tools/actions/composites/setup-build-desktop
-        id: build-desktop
-        with:
-          os: mac
-          aws-access-key: ${{ secrets.AWS_S3_CACHE_ACCESS_KEY }}
-          aws-secret-key: ${{ secrets.AWS_S3_CACHE_SECRET_KEY }}
-      - name: Build the app
-        run: |
-          pnpm build:lld --api="http://127.0.0.1:${{ steps.build-desktop.outputs.port }}" --token="yolo" --team="foo"
-      - name: Upload macOS app
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.build-desktop.outputs.version }}-mac.dmg
-          path: ${{ github.workspace }}/apps/ledger-live-desktop/dist/${{ steps.build-desktop.outputs.name }}-${{ steps.build-desktop.outputs.version }}-mac.dmg
-
+  
   report:
     needs: [build-desktop-app-linux, build-desktop-app-macos, build-desktop-app-windows]
     runs-on: ubuntu-latest

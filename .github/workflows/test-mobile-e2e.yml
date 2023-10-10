@@ -2,12 +2,6 @@ name: "@Mobile • Test App End-2-End"
 run-name: "@Mobile • Test App End-2-End triggered by ${{ github.event_name == 'workflow_dispatch' && inputs.login || github.actor }} ${{ format('on ref {0}', github.ref_name) }}"
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-      - release
-      - hotfix
   workflow_dispatch:
     inputs:
       ref:
