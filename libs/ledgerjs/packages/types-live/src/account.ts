@@ -183,6 +183,11 @@ export type Account = {
   nfts?: ProtoNFT[];
 };
 
+export function isSandbox(account: Account ){
+  if(account == null) return false
+  else return account.id.startsWith("mock") || account.id.startsWith("sandbox")
+};
+
 /** super type that is either a token or a child account */
 export type SubAccount = TokenAccount | ChildAccount;
 

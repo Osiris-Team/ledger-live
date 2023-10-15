@@ -31,6 +31,7 @@ import StepConfirmation, { StepConfirmationFooter } from "./steps/StepConfirmati
 import StepWarning, { StepWarningFooter } from "./steps/StepWarning";
 import { St, StepId } from "./types";
 import { getLLDCoinFamily } from "~/renderer/families";
+import { setEnv } from "@ledgerhq/live-env";
 
 export type Data = {
   account?: AccountLike | undefined | null;
