@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { Trans } from "react-i18next";
-import { Account, AccountLike, CexDepositEntryPointsLocationsDesktop } from "@ledgerhq/types-live";
+import { Account, AccountLike, CexDepositEntryPointsLocationsDesktop, isSandbox } from "@ledgerhq/types-live";
 import { TokenCurrency, CryptoCurrency, CryptoOrTokenCurrency } from "@ledgerhq/types-cryptoassets";
 import {
   getAccountCurrency,
@@ -171,7 +171,7 @@ export function StepAccountFooter({
       data-test-id="modal-continue-button"
       disabled={!account || (receiveTokenMode && !token) || !!error}
       primary
-      onClick={() => transitionTo("device")}
+      onClick={() => isSandbox(account) ? transitionTo("receive") : transitionTo("device")}
     >
       <Trans i18nKey="common.continue" />
     </Button>

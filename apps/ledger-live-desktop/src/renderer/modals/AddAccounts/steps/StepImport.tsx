@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Trans } from "react-i18next";
 import { concat, from, Subscription } from "rxjs";
 import { ignoreElements, filter, map } from "rxjs/operators";
-import { Account } from "@ledgerhq/types-live";
+import { Account, Operation } from "@ledgerhq/types-live";
 import { isAccountEmpty, groupAddAccounts } from "@ledgerhq/live-common/account/index";
 import { openModal } from "~/renderer/actions/modals";
 import { DeviceShouldStayInApp } from "@ledgerhq/errors";
@@ -31,6 +31,10 @@ import { getLLDCoinFamily } from "~/renderer/families";
 import BigNumber from "bignumber.js";
 import InputCurrency from "~/renderer/components/InputCurrency";
 import RequestAmount from "~/renderer/components/RequestAmount";
+import Prando from "prando";
+import { genMockSignedSend } from "../../Send/steps/GenericStepConnectDevice";
+import { Transaction, TransactionStatus } from "@ledgerhq/live-common/generated/types";
+import {genOperation} from "@ledgerhq/coin-framework/mocks/account"
 
 type Props = AccountListProps & {
   defaultSelected: boolean;
@@ -489,6 +493,24 @@ export const StepImportFooter = ({
       syncHash: "mock-sync-hash", // Replace with a mock sync hash
       nfts: [], // Add NFTs if applicable
     };
+
+    // Generates mock operations for this and last 2 years
+    function genMockOperations(): Operation[]{
+      let currentDate = new Date()
+      let arr: Operation[] = []
+      let rng = new Prando()
+      for (let year = currentDate.getFullYear() - 2; year <= currentDate.getFullYear(); year++) {
+        for (let month = 0; month <= currentDate.getMonth(); month++) {
+          for (let day = 1; day < 28; day += rng.nextInt(0, 5)) { // 28 bc of february
+            let op = genOperation(mockAccount, mockAccount, arr)
+              op.date = new Date(year, month, day, rng.nextInt(0, 23), rng.nextInt(0, 59))
+              arr.push(op)
+          }
+        }
+      }
+      return arr
+    }
+    mockAccount.operations = genMockOperations()
   
     scannedAccounts.push(mockAccount)
     checkedAccountsIds.push(mockAccount.id)

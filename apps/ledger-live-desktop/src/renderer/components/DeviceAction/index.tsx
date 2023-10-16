@@ -496,8 +496,8 @@ export const DeviceActionDefaultRendering = <R, H extends States, P>({
   }
   console.log("Finished renderConnectYourDevice!"+isLoading+allowOpeningGranted+appAndVersion)
   
-  // if (!isSandbox(account) && (isLoading || (allowOpeningGranted && !appAndVersion))) {
-    if (isLoading || (allowOpeningGranted && !appAndVersion)) {
+  //if (!isSandbox(account) && (isLoading || (allowOpeningGranted && !appAndVersion))) {
+  if (isLoading || (allowOpeningGranted && !appAndVersion)) {
     return renderLoading();
   }
   console.log("Finished renderLoading!")
