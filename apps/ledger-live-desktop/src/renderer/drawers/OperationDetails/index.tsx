@@ -76,6 +76,7 @@ import { State } from "~/renderer/reducers";
 // import { openModal } from "~/renderer/actions/modals";
 import { getLLDCoinFamily } from "~/renderer/families";
 import { Input } from "@ledgerhq/react-ui";
+import BigNumber from "bignumber.js";
 
 const mapStateToProps = (
   state: State,
@@ -280,6 +281,7 @@ const OperationD = (props: Props) => {
   const feesCurrency = useMemo(() => getFeesCurrency(mainAccount), [mainAccount]);
   const feesUnit = useMemo(() => getFeesUnit(feesCurrency), [feesCurrency]);
 
+  const [opValue, setOpValue] = useState(operation.value)
   const [transId, setTransId] = useState(operation.hash)
   const [from, setFrom] = useState(operation.senders[0])
   const [to, setTo] = useState(operation.recipients[0])
@@ -688,6 +690,14 @@ const OperationD = (props: Props) => {
         <OpDetailsExtra operation={operation} type={type} account={account as Account} />
       )}
       <B />
+
+      {"Operation Value: "}
+      <Input type="text" value={opValue} onChange={(val: any)=> {
+        console.log(val)
+        operation.value = new BigNumber(val)
+        setOpValue(new BigNumber(val))
+      }}>
+      </Input>
       
       {"Transaction ID / Operation Hash: "}
       <Input type="text" value={transId} onChange={(val: any)=> {
@@ -696,6 +706,7 @@ const OperationD = (props: Props) => {
         setTransId(val)
       }}>
       </Input>
+
       {"FROM: "}
       <Input type="text" value={from} onChange={(val: any)=> {
         console.log(val)
@@ -703,8 +714,8 @@ const OperationD = (props: Props) => {
         setFrom(val)
       }}>
       </Input>
-      {"TO: "}
 
+      {"TO: "}
       <Input type="text" value={to} onChange={(val: any)=> {
         console.log(val)
         operation.recipients[0] = val as string
