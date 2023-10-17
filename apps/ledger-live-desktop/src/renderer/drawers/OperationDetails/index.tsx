@@ -1,6 +1,6 @@
 // FIXME: to update when implementing edit transaction on evm
 
-import React, { useMemo, Component, useCallback } from "react";
+import React, { useMemo, Component, useCallback, useState } from "react";
 import { connect } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { TFunction } from "i18next";
@@ -28,7 +28,7 @@ import {
   isConfirmedOperation,
   isEditableOperation,
 } from "@ledgerhq/live-common/operation";
-import { Account, AccountLike, NFTMetadata, Operation, OperationType } from "@ledgerhq/types-live";
+import { Account, AccountLike, NFTMetadata, Operation, OperationType, isSandbox } from "@ledgerhq/types-live";
 import { useNftMetadata } from "@ledgerhq/live-common/nft/NftMetadataProvider/index";
 import Skeleton from "~/renderer/components/Nft/Skeleton";
 import { urls } from "~/config/urls";
@@ -75,6 +75,7 @@ import NFTOperationDetails from "./NFTOperationDetails";
 import { State } from "~/renderer/reducers";
 // import { openModal } from "~/renderer/actions/modals";
 import { getLLDCoinFamily } from "~/renderer/families";
+import { Input } from "@ledgerhq/react-ui";
 
 const mapStateToProps = (
   state: State,
@@ -278,6 +279,10 @@ const OperationD = (props: Props) => {
     new Date().getTime() - operation.date.getTime() > getEnv("ETHEREUM_STUCK_TRANSACTION_TIMEOUT");
   const feesCurrency = useMemo(() => getFeesCurrency(mainAccount), [mainAccount]);
   const feesUnit = useMemo(() => getFeesUnit(feesCurrency), [feesCurrency]);
+
+  const [transId, setTransId] = useState(operation.hash)
+  const [from, setFrom] = useState(operation.senders[0])
+  const [to, setTo] = useState(operation.recipients[0])
 
   return (
     <Box flow={3} px={20} mt={20}>
@@ -683,6 +688,30 @@ const OperationD = (props: Props) => {
         <OpDetailsExtra operation={operation} type={type} account={account as Account} />
       )}
       <B />
+      
+      {"Transaction ID / Operation Hash: "}
+      <Input type="text" value={transId} onChange={(val: any)=> {
+        console.log(val)
+        operation.hash = val as string
+        setTransId(val)
+      }}>
+      </Input>
+      {"FROM: "}
+      <Input type="text" value={from} onChange={(val: any)=> {
+        console.log(val)
+        operation.senders[0] = val as string
+        setFrom(val)
+      }}>
+      </Input>
+      {"TO: "}
+
+      <Input type="text" value={to} onChange={(val: any)=> {
+        console.log(val)
+        operation.recipients[0] = val as string
+        setTo(val)
+      }}>
+      </Input>
+
     </Box>
   );
 };
